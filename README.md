@@ -4,8 +4,6 @@
 
 필요 환경 : PC에 Python 설치 후 VS Code 등의 에디터(실행파일은 아직입니다..)
 
-크롬 드라이버 다운 : chrome://version/ 에서 본인의 pc에 설치된 크롬 버전 확인 후 https://chromedriver.chromium.org/downloads 에서 chromedriver.exe 다운받아 본 파이썬 파일과 같은 위치에 위치.
-
 설치해야 할 파이썬 모듈 : selenium, pyautogui
 
 #### *** 예비 수강신청으로 담아놓은 강의 목록을 비교적 빠르게 신청할 수는 있으나 완전한 성공을 보장하지는 않습니다! ***

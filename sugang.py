@@ -39,24 +39,32 @@ def make_list_to_apply(buttons:list, classes:list) -> list:
     return buttons_to_apply, classes_to_apply
 
 def main():
-    ID, PW = get_ID_PW()
+    loggedIn = False
+    while not loggedIn:
+        ID, PW = get_ID_PW()
 
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('detach', True)
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    driver = webdriver.Chrome(options = options)
-    driver.get("https://sugang.kangwon.ac.kr/")
-    
-    driver.find_element(By.ID, "USER_ID").send_keys(ID)
-    driver.find_element(By.ID, "PWD").send_keys(PW)
-    driver.find_element(By.ID, "button_login").click()
-    driver.implicitly_wait(10)
-    try:
-        alert = WebDriverWait(driver, 2).until(EC.alert_is_present(), "Login Failed")
-        print("Wrong ID or PW!")
-        sys.exit()
-    except:
-        pass
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('detach', True)
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        driver = webdriver.Chrome(options = options)
+        driver.get("https://sugang.kangwon.ac.kr/")
+        
+        driver.find_element(By.ID, "USER_ID").send_keys(ID)
+        driver.find_element(By.ID, "PWD").send_keys(PW)
+        driver.find_element(By.ID, "button_login").click()
+        driver.implicitly_wait(10)
+        try:
+            WebDriverWait(driver, 2).until(EC.alert_is_present(), "Login Failed")
+            alert = driver.switch_to.alert
+            if alert:
+                print(alert.text)
+                print("Wrong ID or PW!")
+                alert.accept()
+                driver.close()
+            # sys.exit()
+        except:
+            loggedIn = True
+            pass
 
     driver.find_element(By.XPATH, '//*[@id="topMnu"]/li[2]/a').click()
     driver.implicitly_wait(100)

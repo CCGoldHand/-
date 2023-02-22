@@ -4,14 +4,29 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstaller
 import pyautogui
 import time
-import sys
 
 def get_ID_PW() -> str:
     id = input("ID : ")
     pw = input("PW : ")
     return id, pw
+
+def get_chromedriver():
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('detach', True)
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+    try:
+        driver = webdriver.Chrome(executable_path = f'./{chrome_ver}/chromedriver', options = options)
+    except:
+        chromedriver_autoinstaller.install(True)
+        driver = webdriver.Chrome(executable_path = f'./{chrome_ver}/chromedriver', options = options)
+    
+    driver.implicitly_wait(10)
+    return driver
 
 def make_list_to_apply(buttons:list, classes:list) -> list:
     buttons_apply = []
@@ -43,10 +58,7 @@ def main():
     while not loggedIn:
         ID, PW = get_ID_PW()
 
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option('detach', True)
-        options.add_experimental_option("excludeSwitches", ["enable-logging"])
-        driver = webdriver.Chrome(options = options)
+        driver = get_chromedriver()
         driver.get("https://sugang.kangwon.ac.kr/")
         
         driver.find_element(By.ID, "USER_ID").send_keys(ID)
@@ -61,7 +73,6 @@ def main():
                 print("Wrong ID or PW!")
                 alert.accept()
                 driver.close()
-            # sys.exit()
         except:
             loggedIn = True
             pass

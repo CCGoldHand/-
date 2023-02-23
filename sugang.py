@@ -7,6 +7,10 @@ from selenium.webdriver.chrome.options import Options
 import chromedriver_autoinstaller
 import pyautogui
 import time
+import gui
+# from gui import ID, PW
+
+driver = None
 
 def get_ID_PW() -> str:
     id = input("ID : ")
@@ -14,11 +18,14 @@ def get_ID_PW() -> str:
     return id, pw
 
 def get_chromedriver():
-    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+    global driver
+    # 현재 사용중인 크롬 버전에 맞는 드라이버 받아오기
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0] 
     options = webdriver.ChromeOptions()
     options.add_experimental_option('detach', True)
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
+    # 사용중인 크롬 버전에 맞는 드라이버 적용
     try:
         driver = webdriver.Chrome(executable_path = f'./{chrome_ver}/chromedriver', options = options)
     except:
@@ -26,7 +33,6 @@ def get_chromedriver():
         driver = webdriver.Chrome(executable_path = f'./{chrome_ver}/chromedriver', options = options)
     
     driver.implicitly_wait(10)
-    return driver
 
 def make_list_to_apply(buttons:list, classes:list) -> list:
     buttons_apply = []
@@ -56,13 +62,16 @@ def make_list_to_apply(buttons:list, classes:list) -> list:
 def main():
     loggedIn = False
     while not loggedIn:
-        ID, PW = get_ID_PW()
+        #ID, PW = get_ID_PW()
+        gui.login_gui()
+        id = gui.ID
+        pw = gui.PW
 
-        driver = get_chromedriver()
+        get_chromedriver()
         driver.get("https://sugang.kangwon.ac.kr/")
         
-        driver.find_element(By.ID, "USER_ID").send_keys(ID)
-        driver.find_element(By.ID, "PWD").send_keys(PW)
+        driver.find_element(By.ID, "USER_ID").send_keys(id)
+        driver.find_element(By.ID, "PWD").send_keys(pw)
         driver.find_element(By.ID, "button_login").click()
         driver.implicitly_wait(10)
         try:
@@ -89,10 +98,10 @@ def main():
         if classes_to_apply:
             for btn, cls in zip(buttons_to_apply, classes_to_apply):
                 btn.click()
-                time.sleep(0.5)
+                time.sleep(0.1)
                 pyautogui.press('enter')
                 print(f'{cls} 신청 완료. 신청이 정상적으로 되었는지 확인해 보세요.')
-                time.sleep(0.5)
+                time.sleep(0.1)
         else:
             break
 

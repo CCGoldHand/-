@@ -16,14 +16,8 @@ def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
-UI_path = resource_path("login.ui")
-UI_class = uic.loadUiType(UI_path)[0]
-
 Main_UI_path = resource_path("main.ui")
 Main_UI_class = uic.loadUiType(Main_UI_path)[0]
-
-Warning_UI_path = resource_path("warning_not_time.ui")
-Warning_UI_class = uic.loadUiType(Warning_UI_path)[0]
 
 class Main_Window(QMainWindow, Main_UI_class):
     def __init__(self):

@@ -1,15 +1,18 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtGui import *
+from PyQt5.QtCore import QTimer
 from datetime import datetime
 from threading import Timer
+import json
 import time
 import sys
 import os
 
 ID = None
 PW = None
-isTime = False
+login_data_path = None
+login_data_available = None
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -19,44 +22,81 @@ def resource_path(relative_path):
 Main_UI_path = resource_path("main.ui")
 Main_UI_class = uic.loadUiType(Main_UI_path)[0]
 
+Warning_UI_path = resource_path("warning_not_time.ui")
+Warning_UI_class = uic.loadUiType(Warning_UI_path)[0]
+
 class Main_Window(QMainWindow, Main_UI_class):
     def __init__(self):
         super().__init__()
         # self.setWindowTitle("수강신청을 자동으로 해보자")
         self.setupUi(self)
+        self.load_id_pw()
         self.START.clicked.connect(self.get_id_pw)
         self.show_time()
+
+    def load_id_pw(self):
+        global ID
+        global PW
+        global login_data_available
+        global login_data_path
+        login_data_path = ("./id_pw.json")
+        try:
+            with open(login_data_path, "r") as f:
+                data = json.load(f)
+                ID = data["ID"]
+                self.ID.setText(ID)
+                PW = data["PW"]
+                self.PW.setText(PW)
+            login_data_available = True
+        except FileNotFoundError:
+            login_data_available = False
 
     def get_id_pw(self):
         global ID
         global PW
+        global login_data_available
         ID = self.ID.text()
         PW = self.PW.text()
+        data = {"ID" : ID,
+                "PW" : PW}
+        with open(login_data_path, "w") as f:
+            json.dump(data, f, indent = 2)
         time.sleep(0.5)
-        if not isTime:
-            self.not_sugang_time()
         self.close()
 
     def show_time(self):
-        global isTime
         time_now = datetime.now().strftime("%H : %M : %S")
-        if time_now >= "10 : 00 : 00" and time_now < "17 : 00 : 00":
-            isTime = True
         self.HOUR.display(time_now)
 
         timer = Timer(0.1, self.show_time)
         timer.start()
 
     def not_sugang_time(self):
-        re = QMessageBox.question(self, "수강신청 가능 시간(10:00 ~ 17:00)이 아닙니다.", 
-                                  "진행 시 로그인 후 예비 수강신청 목록 확인까지는 진행됩니다.",
-                                  QMessageBox.Yes | QMessageBox.No)
-        
-        if re == QMessageBox.Yes:
-            pass
-        else:
+        re = QMessageBox.warning(self, "수강신청 가능 기간이 아닙니다.",
+                                  "Press OK to exit...",
+                                  QMessageBox.Ok)
+
+        if re == QMessageBox.Ok:
+            print("close")
             self.close()
-            os._exit(os.X_OK)
+
+class Not_Sugang_Time(QDialog, Warning_UI_class):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle("수강신청 기간이 아닙니다")
+
+    def exit_im(self):
+        self.close()
+        sys.exit()
+
+def warning_not_sugang_time():
+    app = QApplication(sys.argv)
+
+    window = Not_Sugang_Time()
+    window.show()
+
+    app.exec_()
 
 def login_gui():
     app = QApplication(sys.argv)
@@ -65,8 +105,6 @@ def login_gui():
     window.show()
     
     app.exec_()
-    print(f'id : {ID}')
-    print(f'pw : {PW}')
 
 if __name__ == "__main__":
     login_gui()

@@ -2,20 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.alert import Alert
-from selenium.webdriver.chrome.options import Options
 import chromedriver_autoinstaller
 import pyautogui
+from datetime import datetime
 import time
 import gui
-# from gui import ID, PW
+import sys
 
 driver = None
-
-def get_ID_PW() -> str:
-    id = input("ID : ")
-    pw = input("PW : ")
-    return id, pw
 
 def get_chromedriver():
     global driver
@@ -59,10 +53,19 @@ def make_list_to_apply(buttons:list, classes:list) -> list:
     print(f'신청된 강의 : {classes_applied}')
     return buttons_to_apply, classes_to_apply
 
+def check_isSugangtime():
+    start_time = driver.find_element(By.XPATH, '//*[@id="aside"]/div[3]/div[2]/strong').text
+    end_time = driver.find_element(By.XPATH, '//*[@id="aside"]/div[3]/div[3]/strong').text
+    time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    
+    if time_now < start_time or time_now > end_time:
+        gui.warning_not_sugang_time()
+        driver.close()
+        sys.exit()
+    
 def main():
     loggedIn = False
     while not loggedIn:
-        #ID, PW = get_ID_PW()
         gui.login_gui()
         id = gui.ID
         pw = gui.PW
@@ -85,6 +88,8 @@ def main():
         except:
             loggedIn = True
             pass
+
+    check_isSugangtime()
 
     driver.find_element(By.XPATH, '//*[@id="topMnu"]/li[2]/a').click()
     driver.implicitly_wait(100)

@@ -13,6 +13,7 @@ ID = None
 PW = None
 login_data_path = None
 login_data_available = None
+program_end = False
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -30,6 +31,9 @@ class Main_Window(QMainWindow, Main_UI_class):
         super().__init__()
         # self.setWindowTitle("수강신청을 자동으로 해보자")
         self.setupUi(self)
+        self.timer = QTimer(self)
+        self.isClosed = False
+        self.stay = False
         self.load_id_pw()
         self.START.clicked.connect(self.get_id_pw)
         self.show_time()
@@ -61,8 +65,9 @@ class Main_Window(QMainWindow, Main_UI_class):
                 "PW" : PW}
         with open(login_data_path, "w") as f:
             json.dump(data, f, indent = 2)
-        time.sleep(0.5)
-        self.close()
+        self.timer.start(500)
+        self.stay = True
+        self.timer.timeout.connect(self.close)
 
     def show_time(self):
         time_now = datetime.now().strftime("%H : %M : %S")
@@ -80,15 +85,32 @@ class Main_Window(QMainWindow, Main_UI_class):
             print("close")
             self.close()
 
+    def closeEvent(self, e):
+        global program_end
+        if self.stay:
+            self.stay = False
+            pass
+        else:
+            print(e.type())
+            self.isClosed = QMessageBox.question(self, "종료 확인", "종료하시겠습니까?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if self.isClosed == QMessageBox.Yes:
+                program_end = True
+                e.accept()
+            else:
+                e.ignore()
+
 class Not_Sugang_Time(QDialog, Warning_UI_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.timer = QTimer(self)
         self.setWindowTitle("수강신청 기간이 아닙니다")
+        self.timer.start(1000)
+        self.timer.timeout.connect(self.exit_im)
 
     def exit_im(self):
         self.close()
-        sys.exit()
+        # sys.exit()
 
 def warning_not_sugang_time():
     app = QApplication(sys.argv)

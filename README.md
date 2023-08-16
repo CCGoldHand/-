@@ -4,7 +4,7 @@
 
 필요 환경 : PC에 Python 설치 후 VS Code 등의 에디터(실행파일은 아직입니다..)
 
-설치해야 할 파이썬 모듈 : selenium, chromedriver_autoinstaller, pyautogui, PyQt5
+설치해야 할 파이썬 모듈 : selenium 4.10 이상, chromedriver_autoinstaller, webdriver_manager, pyautogui, PyQt5
 
 #### *** 예비 수강신청으로 담아놓은 강의 목록을 비교적 빠르게 신청할 수는 있으나 완전한 성공을 보장하지는 않습니다! ***
 

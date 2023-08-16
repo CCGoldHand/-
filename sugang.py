@@ -134,7 +134,7 @@ def main():
     driver.find_element(By.XPATH, '//*[@id="topMnu"]/li[2]/a').click()
     driver.implicitly_wait(100)
 
-    while True:
+    for i in range(100):
         buttons = driver.find_elements(By.CSS_SELECTOR, ".btn_appli")
         classes = [cls.text for cls in driver.find_elements(By.CSS_SELECTOR, ".left_txt.bold")]
         
@@ -148,8 +148,9 @@ def main():
                 print(f'{cls} 신청 완료. 신청이 정상적으로 되었는지 확인해 보세요.')
                 time.sleep(0.1)
         else:
-            break
-
+            print(f"신청이 전부 완료된 것 같습니다. 직접 확인해 보세요!")
+            sys.exit(0)
+    print(f"부정 수강신청 감지 방지를 위해 100회 시도 후 프로그램이 종료됩니다..")
 
 if __name__ == '__main__':
     main()

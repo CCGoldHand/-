@@ -16,6 +16,8 @@ import os
 
 driver = None
 loggedIn = False
+programStarted = False
+allCleared = False
 
 # def get_chromedriver():
 #     global driver
@@ -57,6 +59,7 @@ def get_chromedriver():
     driver = webdriver.Chrome(service = service, options = options)
 
 def make_list_to_apply(buttons:list, classes:list) -> list:
+    global allCleared
     buttons_apply = []
     buttons_applied = []
     classes_apply = []
@@ -79,6 +82,9 @@ def make_list_to_apply(buttons:list, classes:list) -> list:
             classes_to_apply.append(cls)
     print(f'신청할 강의 : {classes_to_apply}')
     print(f'신청된 강의 : {classes_applied}')
+
+    if buttons_to_apply:
+        allCleared = True
     return buttons_to_apply, classes_to_apply
 
 def check_isSugangtime():
@@ -96,7 +102,7 @@ def check_isSugangtime():
 
 def main():
     global loggedIn
-    global isMainGUIRunning
+    global programStarted
     while True:
         while not loggedIn:
             gui.login_gui()
@@ -131,27 +137,31 @@ def main():
             if loggedIn:
                 break
 
-        driver.find_element(By.XPATH, '//*[@id="topMnu"]/li[2]/a').click()
-        driver.implicitly_wait(100)
+        if not allCleared:
+            driver.find_element(By.XPATH, '//*[@id="topMnu"]/li[2]/a').click()
+            driver.implicitly_wait(100)
 
-        for _ in range(100):
             buttons = driver.find_elements(By.CSS_SELECTOR, ".btn_appli")
             classes = [cls.text for cls in driver.find_elements(By.CSS_SELECTOR, ".left_txt.bold")]
-            
+                
             buttons_to_apply, classes_to_apply = make_list_to_apply(buttons, classes)
-            print(f'신청해야 할 강의 : {classes_to_apply}')
-            if classes_to_apply:
-                for btn, cls in zip(buttons_to_apply, classes_to_apply):
-                    btn.click()
-                    time.sleep(0.05)
-                    pyautogui.press('enter')
-                    print(f'{cls} 신청 완료. 신청이 정상적으로 되었는지 확인해 보세요.')
-                    time.sleep(0.1)
-            else:
-                print(f"신청이 전부 완료된 것 같습니다. 직접 확인해 보세요!")
-                sys.exit(0)
-        print(f"부정 수강신청 감지 방지를 위해 100회 시도 후 프로그램이 종료됩니다.. 아직 신청하지 못한 강의가 있다면 다시 시도해 주세요.")
-        driver.close()
+            programStarted = True
+        
+        if programStarted:
+            for _ in range(40):
+                print(f'신청해야 할 강의 : {classes_to_apply}')
+                if classes_to_apply:
+                    for btn, cls in zip(buttons_to_apply, classes_to_apply):
+                        btn.click()
+                        time.sleep(0.05)
+                        pyautogui.press('enter')
+                        print(f'{cls} 신청 완료. 신청이 정상적으로 되었는지 확인해 보세요.')
+                        time.sleep(0.1)
+                else:
+                    print(f"신청이 전부 완료된 것 같습니다. 직접 확인해 보세요!")
+                    sys.exit(0)
+            print(f"신청 40회로 보안문자 입력이 필요합니다. 보안문자 입력 후 계속해주세요.")
+            driver.implicitly_wait(10000)
 
 if __name__ == '__main__':
     main()

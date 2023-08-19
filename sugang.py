@@ -83,7 +83,7 @@ def make_list_to_apply(buttons:list, classes:list) -> list:
     print(f'신청할 강의 : {classes_to_apply}')
     print(f'신청된 강의 : {classes_applied}')
 
-    if buttons_to_apply:
+    if not classes_to_apply:
         allCleared = True
     return buttons_to_apply, classes_to_apply
 
